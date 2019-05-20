@@ -15,19 +15,16 @@ from __future__ import absolute_import
 import argparse
 import subprocess
 
-DEV_ACCOUNT = '142577830533'
-VERSION = '1.3.0'
-REGION = 'us-west-2'
-REPO = 'sagemaker-mxnet'
+DEFAULT_REGION = 'us-west-2'
 
 
 def _parse_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--account', type=str, default=DEV_ACCOUNT)
-    parser.add_argument('--version', type=str, default=VERSION)
-    parser.add_argument('--repo', type=str, default=REPO)
-    parser.add_argument('--region', type=str, default=REGION)
+    parser.add_argument('--account')
+    parser.add_argument('--version')
+    parser.add_argument('--repo')
+    parser.add_argument('--region', default=DEFAULT_REGION)
 
     return parser.parse_args()
 
