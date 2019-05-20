@@ -9,8 +9,6 @@ env:
     GITHUB_REPO: 'sagemaker-mxnet-container'
     SETUP_CMDS: '#!/bin/bash\npip install --upgrade pip\npip install -U -e .\npip install -U -e .[test]'
     SETUP_FILE: 'setup_cmds.sh'
-    GPU_INSTANCE_TYPE: 'ml.p2.xlarge'
-    CPU_INSTANCE_TYPE: 'ml.c4.xlarge'
 
 
 phases:
@@ -36,10 +34,8 @@ phases:
 
       - tox -e flake8
 
-      # TODO: make sure both Python versions are run
       # run unit tests
-      # - tox -e py27,py36 test/unit
-      - pytest test/unit
+      - tox -e py27,py36 test/unit
 
       # Create pip archive (tar_name will be something like: sagemaker_mxnet_container-2.0.tar.gz)
       - python3 setup.py sdist
@@ -54,7 +50,7 @@ phases:
 
       # TODO: make sure both Python versions are run
       # run cpu integration tests
-      - tox -e py35 test/integration/local --py-version 3 --processor cpu --framework-version $FRAMEWORK_FULL_VERSION --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO
+      - tox -e py36 test/integration/local --py-version 3 --processor cpu --framework-version $FRAMEWORK_FULL_VERSION --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO
 
       # launch remote gpu instance
       - prefix='ml.'
@@ -65,40 +61,38 @@ phases:
       # TODO: make sure both Python versions are run
       # run gpu integration tests
       - printf "$SETUP_CMDS" > $SETUP_FILE
-      - cmd="tox -e py35 test/integration/local --region $AWS_DEFAULT_REGION --docker-base-name $PREPROD_IMAGE --framework-version $FRAMEWORK_VERSION --processor gpu"
+      - cmd="tox -e py36 test/integration/local --region $AWS_DEFAULT_REGION --docker-base-name $PREPROD_IMAGE --framework-version $FRAMEWORK_VERSION --processor gpu"
       - remote-test --github-repo $GITHUB_REPO --test-cmd "$cmd" --setup-file $SETUP_FILE
 
       # TODO: make sure both Python versions are run
       # run cpu sagemaker tests
-      - tox -e py35 test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_FULL_VERSION --instance-type $CPU_INSTANCE_TYPE
+      - tox -e py36 -- test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_FULL_VERSION --processor cpu
 
       # TODO: make sure both Python versions are run
       # run gpu sagemaker tests
-      - tox -e py35 test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_FULL_VERSION --instance-type $GPU_INSTANCE_TYPE
+      - tox -e py36 test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_FULL_VERSION --processor gpu
 
+      # TODO: make sure all tests are run
       # write deployment details to file
-      # todo sort out eia versioning
       - |
         echo '[{
-          "repository": "sagemaker-mxnet",
+          "repository": "'$ECR_REPO'",
           "tags": [{
             "source": "1.3.0-cpu-py2",
             "dest": ["1.3.0-cpu-py2", "1.3-cpu-py2", "1.3.0-cpu-py2-'${CODEBUILD_BUILD_ID#*:}'"]
           },{
             "source": "1.3.0-gpu-py2",
             "dest": ["1.3.0-gpu-py2", "1.3-gpu-py2", "1.3.0-gpu-py2-'${CODEBUILD_BUILD_ID#*:}'"]
+          },{
+            "source": "1.3.0-cpu-py3",
+            "dest": ["1.3.0-cpu-py3", "1.3-cpu-py3", "1.3.0-cpu-py3-'${CODEBUILD_BUILD_ID#*:}'"]
+          },{
+            "source": "1.3.0-gpu-py3",
+            "dest": ["1.3.0-gpu-py3", "1.3-gpu-py3", "1.3.0-gpu-py3-'${CODEBUILD_BUILD_ID#*:}'"]
           }]
         }, {
-          "repository": "sagemaker-tensorflow-serving-eia",
-          "tags": [{
-            "source": "1.11-cpu",
-            "dest": ["1.11.0-cpu", "1.11.1-cpu", "1.11-cpu", "1.11.1-cpu-'${CODEBUILD_BUILD_ID#*:}'"]
-          },{
-            "source": "1.12-cpu",
-            "dest": ["1.12.0-cpu", "1.12-cpu", "1.12.0-cpu-'${CODEBUILD_BUILD_ID#*:}'"]
-          }],
           "test": [
-            "tox -e py36 -- test/integration/sagemaker/test_ei.py -n 8 --region {region} --registry 520713654638"
+            "tox -e py36 -- test/integration/sagemaker -n auto --region {region} --docker-base-name '$ECR_REPO' --aws-id '$ACCOUNT' --framework-version '$FRAMEWORK_FULL_VERSION' --processor cpu"
           ]
         }]' > deployments.json
 
