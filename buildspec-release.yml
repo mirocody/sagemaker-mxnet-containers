@@ -48,7 +48,7 @@ phases:
 
       # TODO: make sure both Python versions are run
       # run cpu integration tests
-      - tox -e py36 test/integration/local --py-version 3 --processor cpu --framework-version $FRAMEWORK_FULL_VERSION --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO
+      - IGNORE_COVERAGE=- tox -e py36 test/integration/local --py-version 3 --processor cpu --framework-version $FRAMEWORK_FULL_VERSION --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO
 
       # launch remote gpu instance
       - create-key-pair
@@ -57,16 +57,16 @@ phases:
       # TODO: make sure both Python versions are run
       # run gpu integration tests
       - printf "$SETUP_CMDS" > $SETUP_FILE
-      - cmd="tox -e py36 test/integration/local --region $AWS_DEFAULT_REGION --docker-base-name $PREPROD_IMAGE --framework-version $FRAMEWORK_VERSION --processor gpu"
+      - cmd="IGNORE_COVERAGE=- tox -e py36 test/integration/local --region $AWS_DEFAULT_REGION --docker-base-name $PREPROD_IMAGE --framework-version $FRAMEWORK_VERSION --processor gpu"
       - remote-test --github-repo $GITHUB_REPO --test-cmd "$cmd" --setup-file $SETUP_FILE
 
       # TODO: make sure both Python versions are run
       # run cpu sagemaker tests
-      - tox -e py36 -- test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_FULL_VERSION --processor cpu
+      - IGNORE_COVERAGE=- tox -e py36 -- test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_FULL_VERSION --processor cpu
 
       # TODO: make sure both Python versions are run
       # run gpu sagemaker tests
-      - tox -e py36 test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_FULL_VERSION --processor gpu
+      - IGNORE_COVERAGE=- tox -e py36 test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_FULL_VERSION --processor gpu
 
       # TODO: make sure all tests are run
       # write deployment details to file
