@@ -67,7 +67,7 @@ for arch in ['cpu', 'gpu']:
         tag = '{}-{}-py{}'.format(args.version, arch, py_version)
         dest = '{}:{}'.format(args.repo, tag)
         prev_image_uri = '{}.dkr.ecr.{}.amazonaws.com/{}'.format(args.account, args.region, dest)
-        dockerfile = os.path.join(build_dir, 'Dockerfile.{}'.format(arch))
+        dockerfile = 'Dockerfile.{}'.format(arch)
 
         tar_file = subprocess.check_output('ls sagemaker_mxnet_container*.tar.gz',
                                            shell=True).strip().decode('ascii')
