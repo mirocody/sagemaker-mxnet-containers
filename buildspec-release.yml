@@ -41,10 +41,10 @@ phases:
       - cp dist/$tar_name $BUILD_DIR
 
       # build images
-      - python3 scripts/build-all.py --version $FRAMEWORK_FULL_VERSION --account $ACCOUNT --repo $ECR_REPO
+      - python3 scripts/build_all.py --version $FRAMEWORK_FULL_VERSION --account $ACCOUNT --repo $ECR_REPO
 
       # push docker images to ECR
-      - python3 scripts/publish-all.py --version $FRAMEWORK_FULL_VERSION --account $ACCOUNT --repo $ECR_REPO
+      - python3 scripts/publish_all.py --version $FRAMEWORK_FULL_VERSION --account $ACCOUNT --repo $ECR_REPO
 
       # TODO: make sure both Python versions are run
       # run cpu integration tests
