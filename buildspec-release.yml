@@ -9,6 +9,7 @@ env:
     GITHUB_REPO: 'sagemaker-mxnet-container'
     SETUP_CMDS: '#!/bin/bash\npip install --upgrade pip\npip install -U -e .\npip install -U -e .[test]'
     SETUP_FILE: 'setup_cmds.sh'
+    GPU_INSTANCE_TYPE: 'p2.xlarge'
 
 
 phases:
@@ -18,9 +19,6 @@ phases:
 
       - ACCOUNT=$(aws sts get-caller-identity --query 'Account' --output text)
       - BUILD_DIR="docker/$FRAMEWORK_FULL_VERSION/final"
-
-      # fix permissions dropped by CodePipeline
-      - chmod +x ./scripts/*.sh
 
       # keep ssh connection alive when communicating with remote ec2 server during integ test
       # largest connection idle time allowed: 10 seconds * 360 attempts = 60 minutes
@@ -53,10 +51,8 @@ phases:
       - tox -e py36 test/integration/local --py-version 3 --processor cpu --framework-version $FRAMEWORK_FULL_VERSION --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO
 
       # launch remote gpu instance
-      - prefix='ml.'
-      - instance_type=${GPU_INSTANCE_TYPE#"$prefix"}
       - create-key-pair
-      - launch-ec2-instance --instance-type $instance_type --ami-name dlami-ubuntu
+      - launch-ec2-instance --instance-type $GPU_INSTANCE_TYPE --ami-name dlami-ubuntu
 
       # TODO: make sure both Python versions are run
       # run gpu integration tests
