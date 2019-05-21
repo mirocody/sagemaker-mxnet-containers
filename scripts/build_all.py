@@ -81,7 +81,7 @@ for arch in ['cpu', 'gpu']:
             build_dir,
         ]
         print('Building docker image: {}'.format(' '.join(build_cmd)))
-        subprocess.check_call(build_cmd.split())
+        subprocess.check_call(build_cmd)
 
         print('Deleting binary file {}'.format(binary_file))
         subprocess.check_call('rm {}'.format(os.path.join(build_dir, binary_file)).split())
