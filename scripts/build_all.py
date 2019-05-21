@@ -60,7 +60,7 @@ for arch in ['cpu', 'gpu']:
     for py_version in ['2', '3']:
         binary_url = binaries['py{}-{}'.format(py_version, arch)]
         binary_file = os.path.basename(binary_url)
-        cmd = 'wget -O {}/{} {}'.format(build_dir, binary_file, binary_url)
+        cmd = 'wget -O {} {}'.format(binary_file, binary_url)
         print('Downloading binary file: {}'.format(cmd))
         subprocess.check_call(cmd.split())
 
@@ -69,7 +69,7 @@ for arch in ['cpu', 'gpu']:
         prev_image_uri = '{}.dkr.ecr.{}.amazonaws.com/{}'.format(args.account, args.region, dest)
         dockerfile = os.path.join(build_dir, 'Dockerfile.{}'.format(arch))
 
-        tar_file = subprocess.check_output('ls {}/sagemaker_mxnet_container*'.format(build_dir),
+        tar_file = subprocess.check_output('ls sagemaker_mxnet_container*.tar.gz',
                                            shell=True).strip().decode('ascii')
         print('framework_support_installable: {}'.format(os.path.basename(tar_file)))
 
@@ -81,12 +81,12 @@ for arch in ['cpu', 'gpu']:
             '--build-arg', 'framework_support_installable={}'.format(tar_file),
             '--build-arg', 'framework_installable={}'.format(binary_file),
             '-t', dest,
-            build_dir,
+            '.',
         ]
         print('Building docker image: {}'.format(' '.join(build_cmd)))
         subprocess.check_call(build_cmd)
 
         print('Deleting binary file {}'.format(binary_file))
-        subprocess.check_call('rm {}'.format(os.path.join(build_dir, binary_file)).split())
+        subprocess.check_call('rm {}'.format(binary_file).split())
 
 os.chdir(prev_dir)
