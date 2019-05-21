@@ -37,8 +37,8 @@ phases:
 
       # Create pip archive (tar_name will be something like: sagemaker_mxnet_container-2.0.0.tar.gz)
       - python3 setup.py sdist
+      - ls dist
       - tar_name=$(ls dist)
-      - echo "tar name: $tar_name"
       - cp dist/$tar_name $BUILD_DIR
 
       # build images
