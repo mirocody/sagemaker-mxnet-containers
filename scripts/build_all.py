@@ -45,7 +45,10 @@ binaries = {
     'py2-gpu': args.py2_gpu_binary,
     'py3-gpu': args.py3_gpu_binary
 }
+
 build_dir = os.path.join('docker', args.version, 'final')
+prev_dir = os.getcwd()
+os.chdir(build_dir)
 
 # Run docker-login so we can pull the cached image
 login_cmd = subprocess.check_output(
@@ -85,3 +88,5 @@ for arch in ['cpu', 'gpu']:
 
         print('Deleting binary file {}'.format(binary_file))
         subprocess.check_call('rm {}'.format(os.path.join(build_dir, binary_file)).split())
+
+os.chdir(prev_dir)
