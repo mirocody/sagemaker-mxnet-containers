@@ -33,7 +33,7 @@ phases:
       # run unit tests
       - tox -e py27,py36 test/unit
 
-      # Create pip archive (tar_name will be something like: sagemaker_mxnet_container-2.0.0.tar.gz)
+      # Create pip archive (tar_name will be something like sagemaker_mxnet_container-2.0.0.tar.gz)
       - python3 setup.py sdist
       - tar_name=$(ls dist)
       - cp dist/$tar_name $BUILD_DIR
@@ -44,9 +44,9 @@ phases:
       # push docker images to ECR
       - python3 scripts/publish_all.py --version $FRAMEWORK_FULL_VERSION --account $ACCOUNT --repo $ECR_REPO
 
-      # TODO: make sure both Python versions are run
       # run cpu integration tests
-      - IGNORE_COVERAGE=- tox -e py36 -- test/integration/local --py-version 3 --processor cpu --framework-version $FRAMEWORK_FULL_VERSION --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO
+      - IGNORE_COVERAGE=- tox -e py36 -- test/integration/local -n auto --py-version 3 --processor cpu --framework-version $FRAMEWORK_FULL_VERSION --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO
+      - IGNORE_COVERAGE=- tox -e py36 -- test/integration/local -n auto --py-version 2 --processor cpu --framework-version $FRAMEWORK_FULL_VERSION --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO
 
       # launch remote gpu instance
       - create-key-pair
@@ -58,13 +58,13 @@ phases:
       - cmd="IGNORE_COVERAGE=- tox -e py36 -- test/integration/local --region $AWS_DEFAULT_REGION --docker-base-name $PREPROD_IMAGE --framework-version $FRAMEWORK_VERSION --processor gpu"
       # - remote-test --github-repo $GITHUB_REPO --test-cmd "$cmd"
 
-      # TODO: make sure both Python versions are run
       # run cpu sagemaker tests
-      - IGNORE_COVERAGE=- tox -e py36 -- test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_FULL_VERSION --processor cpu
+      - IGNORE_COVERAGE=- tox -e py36 -- test/integration/sagemaker -n auto --py-version 3 --processor cpu --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_FULL_VERSION
+      - IGNORE_COVERAGE=- tox -e py36 -- test/integration/sagemaker -n auto --py-version 2 --processor cpu --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_FULL_VERSION
 
-      # TODO: make sure both Python versions are run
       # run gpu sagemaker tests
-      - IGNORE_COVERAGE=- tox -e py36 -- test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_FULL_VERSION --processor gpu
+      - IGNORE_COVERAGE=- tox -e py36 -- test/integration/sagemaker -n auto --py-version 3 --processor gpu --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_FULL_VERSION
+      - IGNORE_COVERAGE=- tox -e py36 -- test/integration/sagemaker -n auto --py-version 2 --processor gpu --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_FULL_VERSION
 
       # TODO: make sure all tests are run
       # write deployment details to file
@@ -72,21 +72,24 @@ phases:
         echo '[{
           "repository": "'$ECR_REPO'",
           "tags": [{
-            "source": "1.3.0-cpu-py2",
-            "dest": ["1.3.0-cpu-py2", "1.3-cpu-py2", "1.3.0-cpu-py2-'${CODEBUILD_BUILD_ID#*:}'"]
+            "source": "'$FRAMEWORK_FULL_VERSION'-cpu-py2",
+            "dest": ["'$FRAMEWORK_FULL_VERSION'-cpu-py2", "'$FRAMEWORK_SHORT_VERSION'-cpu-py2", "'$FRAMEWORK_FULL_VERSION'-cpu-py2-'${CODEBUILD_BUILD_ID#*:}'"]
           },{
-            "source": "1.3.0-gpu-py2",
-            "dest": ["1.3.0-gpu-py2", "1.3-gpu-py2", "1.3.0-gpu-py2-'${CODEBUILD_BUILD_ID#*:}'"]
+            "source": "'$FRAMEWORK_FULL_VERSION'-gpu-py2",
+            "dest": ["'$FRAMEWORK_FULL_VERSION'-gpu-py2", "'$FRAMEWORK_SHORT_VERSION'-gpu-py2", "'$FRAMEWORK_FULL_VERSION'-gpu-py2-'${CODEBUILD_BUILD_ID#*:}'"]
           },{
-            "source": "1.3.0-cpu-py3",
-            "dest": ["1.3.0-cpu-py3", "1.3-cpu-py3", "1.3.0-cpu-py3-'${CODEBUILD_BUILD_ID#*:}'"]
+            "source": "'$FRAMEWORK_FULL_VERSION'-cpu-py3",
+            "dest": ["'$FRAMEWORK_FULL_VERSION'-cpu-py3", "'$FRAMEWORK_SHORT_VERSION'-cpu-py3", "'$FRAMEWORK_FULL_VERSION'-cpu-py3-'${CODEBUILD_BUILD_ID#*:}'"]
           },{
-            "source": "1.3.0-gpu-py3",
-            "dest": ["1.3.0-gpu-py3", "1.3-gpu-py3", "1.3.0-gpu-py3-'${CODEBUILD_BUILD_ID#*:}'"]
+            "source": "'$FRAMEWORK_FULL_VERSION'-gpu-py3",
+            "dest": ["'$FRAMEWORK_FULL_VERSION'-gpu-py3", "'$FRAMEWORK_SHORT_VERSION'-gpu-py3", "'$FRAMEWORK_FULL_VERSION'-gpu-py3-'${CODEBUILD_BUILD_ID#*:}'"]
           }]
         }, {
           "test": [
-            "tox -e py36 -- test/integration/sagemaker -n auto --region {region} --docker-base-name '$ECR_REPO' --aws-id '$ACCOUNT' --framework-version '$FRAMEWORK_FULL_VERSION' --processor cpu"
+            "IGNORE_COVERAGE=- tox -e py36 -- test/integration/sagemaker -n auto --py-version 3 --processor cpu --region {region} --docker-base-name '$ECR_REPO' --aws-id 520713654638 --framework-version '$FRAMEWORK_FULL_VERSION'"
+            "IGNORE_COVERAGE=- tox -e py36 -- test/integration/sagemaker -n auto --py-version 3 --processor gpu --region {region} --docker-base-name '$ECR_REPO' --aws-id 520713654638 --framework-version '$FRAMEWORK_FULL_VERSION'"
+            "IGNORE_COVERAGE=- tox -e py36 -- test/integration/sagemaker -n auto --py-version 2 --processor cpu --region {region} --docker-base-name '$ECR_REPO' --aws-id 520713654638 --framework-version '$FRAMEWORK_FULL_VERSION'"
+            "IGNORE_COVERAGE=- tox -e py36 -- test/integration/sagemaker -n auto --py-version 2 --processor gpu --region {region} --docker-base-name '$ECR_REPO' --aws-id 520713654638 --framework-version '$FRAMEWORK_FULL_VERSION'"
           ]
         }]' > deployments.json
 
