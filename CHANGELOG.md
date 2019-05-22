@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.1.1 (2019-05-22)
+
+### Bug fixes and other changes
+
+ * remove parallelism
+ * add more tests
+
 ## v0.1.0 (2019-05-21)
 
 ### Bug fixes and other changes
@@ -102,4 +109,3 @@
  * Creating initial file from template
  * Creating initial file from template
  * Initial commit
-
