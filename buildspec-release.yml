@@ -45,8 +45,8 @@ phases:
       - python3 scripts/publish_all.py --version $FRAMEWORK_FULL_VERSION --account $ACCOUNT --repo $ECR_REPO
 
       # run cpu integration tests
-      - IGNORE_COVERAGE=- tox -e py36 -- test/integration/local -n auto --py-version 3 --processor cpu --framework-version $FRAMEWORK_FULL_VERSION --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO
-      - IGNORE_COVERAGE=- tox -e py36 -- test/integration/local -n auto --py-version 2 --processor cpu --framework-version $FRAMEWORK_FULL_VERSION --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO
+      - IGNORE_COVERAGE=- tox -e py36 -- test/integration/local --py-version 3 --processor cpu --framework-version $FRAMEWORK_FULL_VERSION --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO
+      - IGNORE_COVERAGE=- tox -e py36 -- test/integration/local --py-version 2 --processor cpu --framework-version $FRAMEWORK_FULL_VERSION --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO
 
       # launch remote gpu instance
       - create-key-pair
@@ -59,12 +59,12 @@ phases:
       # - remote-test --github-repo $GITHUB_REPO --test-cmd "$cmd"
 
       # run cpu sagemaker tests
-      - IGNORE_COVERAGE=- tox -e py36 -- test/integration/sagemaker -n auto --py-version 3 --processor cpu --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_FULL_VERSION
-      - IGNORE_COVERAGE=- tox -e py36 -- test/integration/sagemaker -n auto --py-version 2 --processor cpu --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_FULL_VERSION
+      - IGNORE_COVERAGE=- tox -e py36 -- test/integration/sagemaker --py-version 3 --processor cpu --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_FULL_VERSION
+      - IGNORE_COVERAGE=- tox -e py36 -- test/integration/sagemaker --py-version 2 --processor cpu --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_FULL_VERSION
 
       # run gpu sagemaker tests
-      - IGNORE_COVERAGE=- tox -e py36 -- test/integration/sagemaker -n auto --py-version 3 --processor gpu --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_FULL_VERSION
-      - IGNORE_COVERAGE=- tox -e py36 -- test/integration/sagemaker -n auto --py-version 2 --processor gpu --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_FULL_VERSION
+      - IGNORE_COVERAGE=- tox -e py36 -- test/integration/sagemaker --py-version 3 --processor gpu --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_FULL_VERSION
+      - IGNORE_COVERAGE=- tox -e py36 -- test/integration/sagemaker --py-version 2 --processor gpu --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_FULL_VERSION
 
       # TODO: make sure all tests are run
       # write deployment details to file
